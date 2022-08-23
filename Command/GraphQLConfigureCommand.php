@@ -4,13 +4,20 @@ namespace Youshido\GraphQLBundle\Command;
 
 use Symfony\Component\Config\Resource\DirectoryResource;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class GraphQLConfigureCommand extends ContainerAwareCommand
+class GraphQLConfigureCommand extends Command
 {
     const PROJECT_NAMESPACE = 'App';
+
+    public function __construct(private ContainerInterface $container)
+    {
+        parent::__construct();
+    }
 
     /**
      * {@inheritdoc}
@@ -30,8 +37,7 @@ class GraphQLConfigureCommand extends ContainerAwareCommand
     {
         $isComposerCall = $input->getOption('composer');
 
-        $container  = $this->getContainer();
-        $rootDir    = $container->getParameter('kernel.root_dir');
+        $rootDir    = $this->container->getParameter('kernel.root_dir');
         $configFile = $rootDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config/packages/graphql.yml';
 
         $className       = 'Schema';
@@ -104,7 +110,7 @@ CONFIG;
      */
     protected function getMainRouteConfig()
     {
-        $routerResources = $this->getContainer()->get('router')->getRouteCollection()->getResources();
+        $routerResources = $this->container->get('router')->getRouteCollection()->getResources();
         foreach ($routerResources as $resource) {
             /** @var FileResource|DirectoryResource $resource */
             if (method_exists($resource, 'getResource') && substr($resource->getResource(), -11) == 'routes.yaml') {
@@ -121,7 +127,7 @@ CONFIG;
      */
     protected function graphQLRouteExists()
     {
-        $routerResources = $this->getContainer()->get('router')->getRouteCollection()->getResources();
+        $routerResources = $this->container->get('router')->getRouteCollection()->getResources();
         foreach ($routerResources as $resource) {
             /** @var FileResource|DirectoryResource $resource */
             if (method_exists($resource, 'getResource') && strpos($resource->getResource(), 'GraphQLController.php') !== false) {
