@@ -8,14 +8,20 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class GraphQLConfigureCommand extends Command
 {
     const PROJECT_NAMESPACE = 'App';
 
-    public function __construct(private ContainerInterface $container)
+    /** @var Container */
+    protected $container;
+
+    public function __construct(ContainerInterface $container)
     {
+        $this->container = $container;
+
         parent::__construct();
     }
 
@@ -140,7 +146,6 @@ CONFIG;
 
     protected function generateRoutes()
     {
-
     }
 
     protected function getSchemaClassTemplate($nameSpace, $className = 'Schema')

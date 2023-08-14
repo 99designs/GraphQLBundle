@@ -27,7 +27,7 @@ class GraphQLBundle extends Bundle
     }
 
 
-    public function getContainerExtension()
+    public function getContainerExtension(): GraphQLExtension
     {
         if (null === $this->extension) {
             $this->extension = new GraphQLExtension();
