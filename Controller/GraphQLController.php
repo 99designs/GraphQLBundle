@@ -57,9 +57,9 @@ class GraphQLController extends AbstractController
             return $this->executeQuery($queryData['query'], $queryData['variables']);
         }, $queries);
 
-        $response = new JsonResponse($isMultiQueryRequest ? $queryResponses : $queryResponses[0], 200, $this->getParameter('graphql.response.headers'));
+        $response = new JsonResponse($isMultiQueryRequest ? $queryResponses : $queryResponses[0], 200, $this->getParam('graphql.response.headers'));
 
-        if ($this->getParameter('graphql.response.json_pretty')) {
+        if ($this->getParam('graphql.response.json_pretty')) {
             $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
         }
 
@@ -188,7 +188,7 @@ class GraphQLController extends AbstractController
      */
     protected function getSchemaClass()
     {
-        return $this->getParameter('graphql.schema_class');
+        return $this->getParam('graphql.schema_class');
     }
 
     /**
@@ -196,7 +196,7 @@ class GraphQLController extends AbstractController
      */
     protected function getSchemaService()
     {
-        $serviceName = $this->getParameter('graphql.schema_service');
+        $serviceName = $this->getParam('graphql.schema_service');
 
         if (substr($serviceName ?: '', 0, 1) === '@') {
             return substr($serviceName, 1, strlen($serviceName) - 1);
@@ -207,10 +207,10 @@ class GraphQLController extends AbstractController
 
     protected function getResponseHeaders()
     {
-        return $this->getParameter('graphql.response.headers');
+        return $this->getParam('graphql.response.headers');
     }
 
-    protected function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null
+    protected function getParam(string $name): array|bool|string|int|float|\UnitEnum|null
     {
         return $this->params->get($name);
     }
