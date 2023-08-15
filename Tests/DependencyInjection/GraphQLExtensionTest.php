@@ -2,16 +2,16 @@
 
 namespace Youshido\GraphQLBundle\Tests\DependencyInjection;
 
-
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Compiler\ResolveDefinitionTemplatesPass;
+use Symfony\Component\DependencyInjection\Compiler\ResolveChildDefinitionsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Youshido\GraphQLBundle\DependencyInjection\GraphQLExtension;
 
-class GraphQLExtensionTest extends \PHPUnit_Framework_TestCase
+class GraphQLExtensionTest extends TestCase
 {
     public function testDefaultConfigIsUsed()
     {
@@ -22,15 +22,17 @@ class GraphQLExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $container->getParameter('graphql.logger'));
         $this->assertEmpty($container->getParameter('graphql.security.white_list'));
         $this->assertEmpty($container->getParameter('graphql.security.black_list'));
-        $this->assertEquals([
-            'field' => false,
-            'operation' => false,
-        ],
+        $this->assertEquals(
+            [
+                'field' => false,
+                'operation' => false,
+            ],
             $container->getParameter('graphql.security.guard_config')
         );
 
         $this->assertTrue($container->getParameter('graphql.response.json_pretty'));
-        $this->assertEquals([
+        $this->assertEquals(
+            [
                 'Access-Control-Allow-Origin' => '*',
                 'Access-Control-Allow-Headers' => 'Content-Type',
             ],
@@ -47,20 +49,21 @@ class GraphQLExtensionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(['hello'], $container->getParameter('graphql.security.black_list'));
         $this->assertEquals(['world'], $container->getParameter('graphql.security.white_list'));
-        $this->assertEquals([
-            'field' => true,
-            'operation' => true,
-        ],
+        $this->assertEquals(
+            [
+                'field' => true,
+                'operation' => true,
+            ],
             $container->getParameter('graphql.security.guard_config')
         );
 
         $this->assertFalse($container->getParameter('graphql.response.json_pretty'));
-        $this->assertEquals([
-            'X-Powered-By' => 'GraphQL',
-        ],
+        $this->assertEquals(
+            [
+                'X-Powered-By' => 'GraphQL',
+            ],
             $container->getParameter('graphql.response.headers')
         );
-
     }
 
     private function loadContainerFromFile($file, $type, array $services = array(), $skipEnvVars = false)
@@ -75,7 +78,7 @@ class GraphQLExtensionTest extends \PHPUnit_Framework_TestCase
             $container->set($id, $service);
         }
         $container->registerExtension(new GraphQLExtension());
-        $locator = new FileLocator(__DIR__.'/Fixtures/config/'.$type);
+        $locator = new FileLocator(__DIR__ . '/Fixtures/config/' . $type);
 
         switch ($type) {
             case 'xml':
@@ -91,9 +94,9 @@ class GraphQLExtensionTest extends \PHPUnit_Framework_TestCase
                 throw new \InvalidArgumentException('Invalid file type');
         }
 
-        $loader->load($file.'.'.$type);
+        $loader->load($file . '.' . $type);
         $container->getCompilerPassConfig()->setOptimizationPasses(array(
-            new ResolveDefinitionTemplatesPass(),
+            new ResolveChildDefinitionsPass(),
         ));
         $container->getCompilerPassConfig()->setRemovingPasses(array());
         $container->compile();
