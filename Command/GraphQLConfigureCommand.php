@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class GraphQLConfigureCommand extends Command
 {
-    const PROJECT_NAMESPACE = 'App';
+    public const PROJECT_NAMESPACE = 'App';
 
     /** @var Container */
     protected $container;
@@ -80,7 +80,7 @@ class GraphQLConfigureCommand extends Command
             }
 
             $originalConfigData = file_get_contents($configFile);
-            if (strpos($originalConfigData, 'graphql') === false) {
+            if (!str_contains($originalConfigData, 'graphql')) {
                 $projectNameSpace = self::PROJECT_NAMESPACE;
                 $configData       = <<<CONFIG
 graphql:
@@ -119,7 +119,7 @@ CONFIG;
         $routerResources = $this->container->get('router')->getRouteCollection()->getResources();
         foreach ($routerResources as $resource) {
             /** @var FileResource|DirectoryResource $resource */
-            if (method_exists($resource, 'getResource') && substr($resource->getResource(), -11) == 'routes.yaml') {
+            if (method_exists($resource, 'getResource') && str_ends_with($resource->getResource(), 'routes.yaml')) {
                 return $resource->getResource();
             }
         }
@@ -136,7 +136,7 @@ CONFIG;
         $routerResources = $this->container->get('router')->getRouteCollection()->getResources();
         foreach ($routerResources as $resource) {
             /** @var FileResource|DirectoryResource $resource */
-            if (method_exists($resource, 'getResource') && strpos($resource->getResource(), 'GraphQLController.php') !== false) {
+            if (method_exists($resource, 'getResource') && str_contains($resource->getResource(), 'GraphQLController.php')) {
                 return true;
             }
         }

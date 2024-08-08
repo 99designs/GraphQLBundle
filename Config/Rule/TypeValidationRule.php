@@ -22,7 +22,7 @@ class TypeValidationRule extends BaseTypeValidationRule
 
         if (($ruleInfo == TypeService::TYPE_CALLABLE) && (
                 is_callable($data) ||
-                (is_array($data) && count($data) == 2 && substr($data[0], 0, 1) == '@'))
+                (is_array($data) && count($data) == 2 && str_starts_with((string) $data[0], '@')))
         ) {
             return true;
         }

@@ -21,7 +21,7 @@ abstract class AbstractListVoter extends Voter
     /** @var bool */
     private $enabled = false;
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $this->enabled && $attribute == SecurityManagerInterface::RESOLVE_ROOT_OPERATION_ATTRIBUTE;
     }

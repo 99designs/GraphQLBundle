@@ -30,19 +30,15 @@ class Processor extends BaseProcessor
     /** @var  SecurityManagerInterface */
     private $securityManager;
 
-    /** @var EventDispatcherInterface */
-    private $eventDispatcher;
-
     /**
      * Constructor.
      *
      * @param ExecutionContextInterface $executionContext
      * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(ExecutionContextInterface $executionContext, EventDispatcherInterface $eventDispatcher)
+    public function __construct(ExecutionContextInterface $executionContext, private readonly EventDispatcherInterface $eventDispatcher)
     {
         $this->executionContext = $executionContext;
-        $this->eventDispatcher = $eventDispatcher;
 
         parent::__construct($executionContext->getSchema());
     }
@@ -105,7 +101,7 @@ class Processor extends BaseProcessor
 
         if (($field instanceof AbstractField) && ($resolveFunc = $field->getConfig()->getResolveFunction())) {
             if ($this->isServiceReference($resolveFunc)) {
-                $service = substr($resolveFunc[0], 1);
+                $service = substr((string) $resolveFunc[0], 1);
                 $method  = $resolveFunc[1];
                 if (!$this->executionContext->getContainer()->has($service)) {
                     throw new ResolveException(sprintf('Resolve service "%s" not found for field "%s"', $service, $field->getName()));
@@ -153,7 +149,7 @@ class Processor extends BaseProcessor
 
     private function isServiceReference($resolveFunc)
     {
-        return is_array($resolveFunc) && count($resolveFunc) == 2 && strpos($resolveFunc[0], '@') === 0;
+        return is_array($resolveFunc) && count($resolveFunc) == 2 && str_starts_with((string) $resolveFunc[0], '@');
     }
 
     public function setLogger($logger = null)

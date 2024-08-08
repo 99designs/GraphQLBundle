@@ -66,7 +66,7 @@ class GraphQLExtensionTest extends TestCase
         );
     }
 
-    private function loadContainerFromFile($file, $type, array $services = array(), $skipEnvVars = false)
+    private function loadContainerFromFile($file, $type, array $services = [], $skipEnvVars = false)
     {
         $container = new ContainerBuilder();
         if ($skipEnvVars && !method_exists($container, 'resolveEnvPlaceholders')) {
@@ -80,25 +80,16 @@ class GraphQLExtensionTest extends TestCase
         $container->registerExtension(new GraphQLExtension());
         $locator = new FileLocator(__DIR__ . '/Fixtures/config/' . $type);
 
-        switch ($type) {
-            case 'xml':
-                $loader = new XmlFileLoader($container, $locator);
-                break;
-            case 'yml':
-                $loader = new YamlFileLoader($container, $locator);
-                break;
-            case 'php':
-                $loader = new PhpFileLoader($container, $locator);
-                break;
-            default:
-                throw new \InvalidArgumentException('Invalid file type');
-        }
+        $loader = match ($type) {
+            'xml' => new XmlFileLoader($container, $locator),
+            'yml' => new YamlFileLoader($container, $locator),
+            'php' => new PhpFileLoader($container, $locator),
+            default => throw new \InvalidArgumentException('Invalid file type'),
+        };
 
         $loader->load($file . '.' . $type);
-        $container->getCompilerPassConfig()->setOptimizationPasses(array(
-            new ResolveChildDefinitionsPass(),
-        ));
-        $container->getCompilerPassConfig()->setRemovingPasses(array());
+        $container->getCompilerPassConfig()->setOptimizationPasses([new ResolveChildDefinitionsPass()]);
+        $container->getCompilerPassConfig()->setRemovingPasses([]);
         $container->compile();
         return $container;
     }
