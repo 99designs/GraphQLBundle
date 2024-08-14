@@ -13,8 +13,8 @@ use Youshido\GraphQL\Parser\Ast\Query;
 interface SecurityManagerInterface
 {
 
-    const RESOLVE_ROOT_OPERATION_ATTRIBUTE = 'RESOLVE_ROOT_OPERATION';
-    const RESOLVE_FIELD_ATTRIBUTE          = 'RESOLVE_FIELD';
+    public const RESOLVE_ROOT_OPERATION_ATTRIBUTE = 'RESOLVE_ROOT_OPERATION';
+    public const RESOLVE_FIELD_ATTRIBUTE          = 'RESOLVE_FIELD';
 
     /**
      * @param $attribute string

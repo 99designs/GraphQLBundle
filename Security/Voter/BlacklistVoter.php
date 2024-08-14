@@ -23,7 +23,7 @@ class BlacklistVoter extends AbstractListVoter
      *
      * @return bool
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         /** @var $subject Query */
         return $this->isLoggedInUser($token) || !$this->inList($subject->getName());

@@ -25,7 +25,7 @@ class GraphQlCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         if ($loggerAlias = $container->getParameter('graphql.logger')) {
-            if (strpos($loggerAlias, '@') === 0) {
+            if (str_starts_with($loggerAlias, '@')) {
                 $loggerAlias = substr($loggerAlias, 1);
             }
 

@@ -20,12 +20,10 @@ use Youshido\GraphQLBundle\Execution\Processor;
 class GraphQLController extends AbstractController
 {
     protected $container;
-    protected $params;
 
-    public function __construct(ContainerInterface $container, ParameterBagInterface $params)
+    public function __construct(ContainerInterface $container, protected ParameterBagInterface $params)
     {
         $this->container = $container;
-        $this->params = $params;
     }
 
     /**
@@ -35,11 +33,11 @@ class GraphQLController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function defaultAction()
+    public function defaultAction(): JsonResponse
     {
         try {
             $this->initializeSchemaService();
-        } catch (UnableToInitializeSchemaServiceException $e) {
+        } catch (UnableToInitializeSchemaServiceException) {
             return new JsonResponse(
                 [['message' => 'Schema class ' . $this->getSchemaClass() . ' does not exist']],
                 200,
@@ -47,15 +45,13 @@ class GraphQLController extends AbstractController
             );
         }
 
-        if ($this->container->get('request_stack')->getCurrentRequest()->getMethod() == 'OPTIONS') {
+        if ($this->container->get('request_stack')->getCurrentRequest()->getMethod() === 'OPTIONS') {
             return $this->createEmptyResponse();
         }
 
-        list($queries, $isMultiQueryRequest) = $this->getPayload();
+        [$queries, $isMultiQueryRequest] = $this->getPayload();
 
-        $queryResponses = array_map(function ($queryData) {
-            return $this->executeQuery($queryData['query'], $queryData['variables']);
-        }, $queries);
+        $queryResponses = array_map(fn($queryData) => $this->executeQuery($queryData['query'], $queryData['variables']), $queries);
 
         $response = new JsonResponse($isMultiQueryRequest ? $queryResponses : $queryResponses[0], 200, $this->getParam('graphql.response.headers'));
 
@@ -66,12 +62,12 @@ class GraphQLController extends AbstractController
         return $response;
     }
 
-    protected function createEmptyResponse()
+    protected function createEmptyResponse(): JsonResponse
     {
         return new JsonResponse([], 200, $this->getResponseHeaders());
     }
 
-    protected function executeQuery($query, $variables)
+    protected function executeQuery($query, $variables): array
     {
         /** @var Processor $processor */
         $processor = $this->container->get('graphql.processor');
@@ -85,7 +81,7 @@ class GraphQLController extends AbstractController
      *
      * @throws \Exception
      */
-    protected function getPayload()
+    protected function getPayload(): array
     {
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $query = $request->get('query', null);
@@ -103,7 +99,7 @@ class GraphQLController extends AbstractController
                     'variables' => [],
                 ];
             } else {
-                $params = json_decode($content, true);
+                $params = json_decode((string) $content, true);
 
                 if ($params) {
                     // check for a list of queries
@@ -114,7 +110,7 @@ class GraphQLController extends AbstractController
                     }
 
                     foreach ($params as $queryParams) {
-                        $query = isset($queryParams['query']) ? $queryParams['query'] : $query;
+                        $query = $queryParams['query'] ?? $query;
 
                         if (isset($queryParams['variables'])) {
                             if (is_string($queryParams['variables'])) {
@@ -198,7 +194,7 @@ class GraphQLController extends AbstractController
     {
         $serviceName = $this->getParam('graphql.schema_service');
 
-        if (substr($serviceName ?: '', 0, 1) === '@') {
+        if (str_starts_with($serviceName ?: '', '@')) {
             return substr($serviceName, 1, strlen($serviceName) - 1);
         }
 
